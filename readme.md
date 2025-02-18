@@ -370,7 +370,7 @@ Redis Lists provide a **fast, flexible** way to manage ordered collections of el
 ![image](https://github.com/user-attachments/assets/62a11d21-2887-4e11-819c-cbdb09c750bc)
 
 
-# 11. Implementation of redis in NodeJS
+# 12. Implementation of redis in NodeJS
 
 ```js
 .
