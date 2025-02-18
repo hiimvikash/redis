@@ -367,5 +367,25 @@ Redis Lists provide a **fast, flexible** way to manage ordered collections of el
 # 9. Redis Stream :- [read here](https://redis.io/docs/latest/develop/data-types/streams/) : Use to store fast changing data like `driver location`, `sensor catching temperature`
 # 10. Redis Geospatial data :- [read here](https://redis.io/docs/latest/develop/data-types/geospatial/) : Helps to find anything near you in the radius of Xkm.
 
+# 11. Implementation of redis in NodeJS
+
+```js
+.
+.
+.
+
+app.get("/", async (req, res)=>{
+    const cachedValue = await client.get("todos");
+    if(cachedValue) return res.json(JSON.parse(cachedValue));
+
+    const {data} = await axios.get('https://jsonplaceholder.typicode.com/todos');
+
+    await client.set("todos", JSON.stringify(data));
+    await client.expire("todos", 30);
+
+    return res.json(data);
+})
+```
+
 
 
