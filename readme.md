@@ -366,6 +366,9 @@ Redis Lists provide a **fast, flexible** way to manage ordered collections of el
 # 8. Redis PriorityQueue :- [read here](https://redis.io/docs/latest/develop/data-types/sorted-sets/)
 # 9. Redis Stream :- [read here](https://redis.io/docs/latest/develop/data-types/streams/) : Use to store fast changing data like `driver location`, `sensor catching temperature`
 # 10. Redis Geospatial data :- [read here](https://redis.io/docs/latest/develop/data-types/geospatial/) : Helps to find anything near you in the radius of Xkm.
+# 11. PubSub
+![image](https://github.com/user-attachments/assets/62a11d21-2887-4e11-819c-cbdb09c750bc)
+
 
 # 11. Implementation of redis in NodeJS
 
