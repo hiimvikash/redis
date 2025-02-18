@@ -389,7 +389,6 @@ app.get("/", async (req, res)=>{
     return res.json(data);
 })
 ```
-test1
 
 
 
