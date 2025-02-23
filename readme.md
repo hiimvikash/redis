@@ -1,5 +1,8 @@
 # 1. What Problem does it solve ?
 ![image](https://github.com/user-attachments/assets/c47f568f-2b15-4507-b316-24cc93fe6bbf)
+![image](https://github.com/user-attachments/assets/c428ae8c-d5a2-46df-864e-ec0b94f75d23)
+Distributed caching.
+
 
 # 2. Installation of Redis.
 - `docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest`
