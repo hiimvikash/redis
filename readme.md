@@ -3,6 +3,43 @@
 ![image](https://github.com/user-attachments/assets/c428ae8c-d5a2-46df-864e-ec0b94f75d23)
 Distributed caching.
 
+## What if redis server goes down and in memory data is lost ?
+- It's completely okay even if your redis data is lost, because at the end of the day it was just a cacheed data, your PRIMARY DB has all your data, which can be eaily cached on further upcoming requests when redis will be up and running again.
+## Understanding In-Memory Data Structure Store
+
+Think of an in-memory data structure store as a super-fast database that stores data in your system’s RAM instead of on disk. Since RAM is much faster than traditional storage (like an SSD or hard drive), retrieving and updating data happens almost instantly.
+
+However, just because it works in memory doesn’t mean the data is lost when the system restarts. To prevent data loss, Redis (a popular in-memory database) provides two ways to save data:
+
+### 1️⃣ RDB (Redis Database File) - Snapshot Backup
+RDB takes a snapshot (a full copy) of all the data at specific time intervals. This is like taking a backup photo of your entire database at regular times.
+
+#### 📌 Example RDB settings:
+```bash
+save 900 1       # Save every 900 seconds (15 min) if at least 1 key changed  
+save 300 10      # Save every 300 seconds (5 min) if at least 10 keys changed  
+save 60 10000    # Save every 60 seconds (1 min) if at least 10,000 keys changed  
+```
+
+- 🔹 The more often Redis saves, the less data you lose in case of a crash.
+- 🔹 But frequent saving can slow performance slightly because it takes a full snapshot each time.
+
+### 2️⃣ AOF (Append Only File) - Write Log Backup
+AOF works differently. Instead of taking a full snapshot, it logs every write operation (like adding, updating, or deleting data) one by one.
+
+#### 📌 How it works:
+- Every time data changes, Redis adds (or appends) that change to a file.
+- If the server crashes, Redis can replay this file to restore all operations step by step.
+
+- 🔹 AOF keeps more recent changes compared to RDB.
+- 🔹 But the file can grow large over time because every single action is recorded.
+
+### Which one should you use?
+✅ **RDB** is better if you want less disk usage and periodic backups (faster recovery but might lose recent changes).
+✅ **AOF** is better if you want every single change saved (more reliable but uses more disk space).
+✅ Many systems use **both RDB and AOF together** for a balance of speed and safety.
+
+
 
 # 2. Installation of Redis.
 - `docker run -d --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest`
