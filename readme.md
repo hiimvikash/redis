@@ -430,5 +430,50 @@ app.get("/", async (req, res)=>{
 })
 ```
 
+# 13. BullMQ - Messaging Queue which uses redis.
+- `connection.js` 
+- Creating seperate `connection.js` file because if you write the connection code in `index.js or wroker.js` and think to import from their then it will cause them to run.
+- let say IF you place your connection code in `worker.js` and import it in `index.js` then while running index.js(your goal was to just add task in queue, worker should starts when we run worker.js file) but here worker will start automatically because **we are importing from worker.js.**
+
+```js
+import Redis from "ioredis"
+
+export const connection = new Redis("rediss://default:AVExAAIjcDFiYzk3MGQyNDZhNmI0MjE2YTY4ODhiNTFlYzM4MjAyZHAxMA@modern-puma-20785.upstash.io:6379", {maxRetriesPerRequest:null})
+```
+- `index.js` : Adding task in Queue
+```js
+import { Queue } from "bullmq";
+import { connection } from "./connection.js";
+
+const logQueue = new Queue("logQueue", {connection});
+
+async function init(){
+    for(let i=67; i<71; i++){
+        console.log(`Adding logger ID : ${i} into QUEUE`);
+        await logQueue.add("logQueue", { loggerId:  i});
+    }
+}
+init();
+```
+- `worker.js` : Pick up task from Queue and process it.
+```js
+import { Worker } from "bullmq";
+import {connection} from "./connection.js"
+
+
+new Worker(
+    "logQueue",
+    async (job) => {
+      console.log(`Processing job ${job.id}: loging for Logger ID ${job.data.loggerId}`);
+        return new Promise((resolve)=>{
+        setTimeout(()=>{
+            resolve(`resolved ${job.data.loggerId}`)
+        }, 3000)
+      }).then((resolvedValue)=>console.log(`INSIDE .THEN > ${resolvedValue}`));
+    },
+    { connection }
+  );
+```
+
 
 
