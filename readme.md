@@ -476,4 +476,52 @@ new Worker(
 ```
 
 
+# Why Do We Need the QueueScheduler?
+
+## Delayed Jobs Management:
+- When you add jobs with a delay, they’re initially stored in a "delayed" state. The QueueScheduler monitors these jobs and, once the delay expires, moves them to the waiting list so that workers can pick them up.
+
+- Example: Imagine you add a job that should run 10 seconds later. Without a QueueScheduler, the job might remain stuck in the delayed state indefinitely.
+## Stalled Jobs Recovery:
+- If a worker crashes or fails to complete a job, the job can become "stalled." The QueueScheduler detects these stalled jobs and re-queues them, ensuring they aren’t lost and can be processed by another worker.
+
+- Example: A worker starts processing a job and then unexpectedly terminates. The QueueScheduler will notice that the job’s lock has expired and will move the job back to the waiting state for retrying.
+## Code Example :-
+
+```js
+// Import the necessary BullMQ classes
+const { Queue, Worker, QueueScheduler } = require('bullmq');
+
+// Define your Redis connection settings
+const connection = { host: '127.0.0.1', port: 6379 };
+
+// Create the queue
+const myQueue = new Queue('my-queue', { connection });
+
+// Instantiate the QueueScheduler
+const scheduler = new QueueScheduler('my-queue', { connection });
+
+// Adding a delayed job
+(async () => {
+  await myQueue.add('delayed-job', { foo: 'bar' }, { delay: 10000 }); // Job to run after 10 seconds
+  console.log('Delayed job added.');
+})();
+
+// Create a worker to process jobs
+const worker = new Worker('my-queue', async job => {
+  console.log(`Processing job ${job.id} with data:`, job.data);
+  return { result: 'done' };
+}, { connection });
+
+// Optional: Monitor job completion and failure events
+worker.on('completed', job => {
+  console.log(`Job ${job.id} completed.`);
+});
+worker.on('failed', (job, err) => {
+  console.error(`Job ${job.id} failed: ${err.message}`);
+});
+
+```
+
+
 
