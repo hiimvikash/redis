@@ -474,3 +474,63 @@ new Worker(
     { connection }
   );
 ```
+
+
+
+
+# Production Perspective 
+- `queue.ts` 
+```js
+import { prisma } from "./config/db";
+import { sendMail } from "./mailer";
+import { Queue, Worker } from "bullmq";
+import Redis from "ioredis"
+
+const connection = new Redis(process.env.REDIS_URI || "", 
+  {
+    maxRetriesPerRequest: null,
+    retryStrategy: (times) => {
+      console.log(`Redis reconnect attempt #${times}`);
+      return Math.min(times * 200, 5000); // Retry with backoff
+    },
+    reconnectOnError: (err) => {
+      console.error("Redis error, reconnecting...", err);
+      return true;
+    }
+  },
+)
+
+connection.ping()
+  .then(() => console.log("Redis connected successfully"))
+  .catch((err) => console.error("Redis connection failed", err));
+
+
+export const emailQueue = new Queue("emailQueue", {connection});
+
+
+const worker = new Worker(
+  "emailQueue",
+  async (job) => {
+    try {
+      const orderId = job.data.orderId;
+      console.log(`Sending mail for OrderId: ${orderId}`);
+
+      await sendOrderMail(orderId);
+
+      console.log(`✅ Mail sent for OrderId: ${orderId}`);
+    } catch (error) {
+      console.error(`❌ Error processing job ${job.id} for OrderId ${job.data.orderId}:`, error);
+      throw error;
+    }
+  },
+  { connection}
+);
+
+worker.on("failed", (job, err) => {
+  console.error(`❌ Job ${job?.id} failed after retries:`, err);
+});
+```
+
+### Adding into the Queue 
+![image](https://github.com/user-attachments/assets/2a12f8c2-f2d1-4fb7-84fd-92f66e128b86)
+
